@@ -37,7 +37,7 @@ class Square(Resource):
   
 # adding the defined resources along with their corresponding urls 
 api.add_resource(Hello, '/') 
-api.add_resource(square, '/square/<int:num>') 
+api.add_resource(Square, '/square/<int:num>') 
   
   
 # driver function 
