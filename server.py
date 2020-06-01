@@ -33,11 +33,21 @@ class Square(Resource):
     def get(self, num): 
   
         return jsonify({'square': num**2}) 
-  
+
+class User(Resource):
+    
+    def get(self):
+        return jsonify({'user':'derek', 'user_id':"001"})
+    
+    def update(self, user_id):
+        print('message:=====', user_id)
+        return jsonify({'user':'derek', 'user_id':user_id})
+        
   
 # adding the defined resources along with their corresponding urls 
 api.add_resource(Hello, '/') 
 api.add_resource(Square, '/square/<int:num>') 
+api.add_resource(User, '/api/user/') 
   
   
 # driver function 
