@@ -1,9 +1,12 @@
 # using flask_restful 
 from flask import Flask, jsonify, request 
 from flask_restful import Resource, Api 
+from flask_pymongo import PyMongo
   
 # creating the flask app 
 app = Flask(__name__) 
+app.config["MONGO_DBNAME"] = "users_db"
+mongo = PyMongo(app, config_prefix='MONGO')
 # creating an API object 
 api = Api(app) 
   
@@ -42,6 +45,12 @@ class User(Resource):
     def post(self, user_id):
         print('message:=====', user_id)
         return jsonify({'user':'derek', 'user_id':user_id})
+    
+    def delete(self, user_id):
+        return jsonify({'delete user':'derek', 'user_id':user_id})
+    
+    def patch(self, user_id):
+        return jsonify({'patch user':'derek', 'user_id':user_id})
         
   
 # adding the defined resources along with their corresponding urls 
