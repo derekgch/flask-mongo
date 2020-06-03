@@ -5,11 +5,14 @@ from flask_pymongo import PyMongo
   
 # creating the flask app 
 app = Flask(__name__) 
+app.config['MONGO_DBNAME'] = 'user_db'
 app.config["MONGO_URI"] = "mongodb://localhost:27017/user_db"
 mongo = PyMongo(app)
 # creating an API object 
 api = Api(app) 
-  
+
+client = mongo.db.client
+db = client['user_db']
 # making a class for a particular resource 
 # the get, post methods correspond to get and post requests 
 # they are automatically mapped by flask_restful. 
@@ -40,11 +43,13 @@ class Square(Resource):
 class User(Resource):
     
     def get(self, user_id):
-        return jsonify({'user':'derek', 'user_id':"001"})
+        found = db.users.find_one({"_id":user_id})
+        return jsonify(found)
     
     def post(self, user_id):
+        userid = db.users.insert_one({"_id":user_id, "name":"derek"})
         print('message:=====', user_id)
-        return jsonify({'user':'derek', 'user_id':user_id})
+        return jsonify(userid)
     
     def delete(self, user_id):
         return jsonify({'delete user':'derek', 'user_id':user_id})
