@@ -2,7 +2,8 @@
 from flask import Flask, jsonify, request 
 from flask_restful import Resource, Api 
 from flask_pymongo import PyMongo, ObjectId
-  
+from flask_bcrypt import Bcrypt
+
 # creating the flask app 
 app = Flask(__name__) 
 app.config['MONGO_DBNAME'] = 'user_db'
@@ -10,6 +11,7 @@ app.config["MONGO_URI"] = "mongodb://localhost:27017/user_db"
 mongo = PyMongo(app)
 # creating an API object 
 api = Api(app) 
+bcrypt = Bcrypt(app)
 
 client = mongo.db.client
 db = client['user_db']
@@ -57,9 +59,11 @@ class User(Resource):
             if db.users.find_one({'username':username}):
                 return jsonify({"response":"ERROR. Already exisits"})
             else:
-                db.users.insert_one(data)
+                data_hashed = self.hash_password(data)
+                db.users.insert_one(data_hashed)
                 found = self.find_user(username)
-                return jsonify({"response":found})
+                
+                return jsonify({"response":self.trip_pw_hash(found)})
                 
     
     def delete(self, user_info):
@@ -84,6 +88,19 @@ class User(Resource):
             print('message:=====', found)
             found['_id'] = str(found['_id'])
         return found
+    
+    def hash_password(self, data):
+        password = data.get('password')
+        if not password:
+            password = '123456789'
+        pw_hash = bcrypt.generate_password_hash(password)
+        data['password'] = pw_hash
+        return data
+    
+    def trip_pw_hash(self, data):
+        data['password'] = '****'
+        return data
+        
         
   
 # adding the defined resources along with their corresponding urls 
