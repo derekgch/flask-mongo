@@ -3,6 +3,12 @@ from flask import Flask, jsonify, request
 from flask_restful import Resource, Api 
 from flask_pymongo import PyMongo, ObjectId
 from flask_bcrypt import Bcrypt
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+
+SECRET_KEY = os.getenv("API_KEY")
 
 # creating the flask app 
 app = Flask(__name__) 
