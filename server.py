@@ -5,6 +5,7 @@ from flask_pymongo import PyMongo, ObjectId
 from flask_bcrypt import Bcrypt
 from dotenv import load_dotenv
 import os
+import requests 
 
 load_dotenv()
 
@@ -107,10 +108,24 @@ class User(Resource):
         data['password'] = '****'
         return data
         
+class Stocks(Resource):
+    def get(self, symbol):
+        try:
+            # https://cloud.iexapis.com/stable/tops?token=API_KEY&symbols=aapl
+            base_url = f'https://cloud.iexapis.com/stable/tops?token={SECRET_KEY}&symbols={symbol}'
+            response = requests.get(base_url)
+            print("=====", base_url,response.status_code)
+            return response.json()
+        except:
+            return jsonify({"response":"Error"})
         
+            
+    
+    
   
 # adding the defined resources along with their corresponding urls 
 api.add_resource(Hello, '/') 
+api.add_resource(Stocks, '/api/stock/<string:symbol>') 
 api.add_resource(All_user_id, '/api/all') 
 api.add_resource(User, '/api/user/<string:user_info>') 
   
