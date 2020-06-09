@@ -119,13 +119,38 @@ class Stocks(Resource):
         except:
             return jsonify({"response":"Error"})
         
+class Trades(Resource):
+    def get(self, trade_id):
+        found = self.find_trade(trade_id)
+        if not found:
+            return jsonify({"response":"Not Found", "status":404})
+        return jsonify({"response":found})
+    
+    def post(self):
+        data = request.get_json()
+        if not data:
+            return jsonify({"response":"ERROR. Empty payload"})
+        else:
+            username = data.get('username')
+            user_id = data.get('user_id')
+            inserted = db.trades.insert_one(data)
+            
+            print("==============", user_id, username, inserted)
+            return jsonify({"response":"Successeful"})
+
+    def find_trade(self, trade_id):
+        return db.trades.find_one({"_id":trade_id})
+        
+        
+        
             
     
     
   
 # adding the defined resources along with their corresponding urls 
 api.add_resource(Hello, '/') 
-api.add_resource(Stocks, '/api/stock/<string:symbol>') 
+api.add_resource(Stocks, '/api/stock/symbol/<string:symbol>')
+api.add_resource(Trades, '/api/trade/<string:trade_id>', '/api/trade')
 api.add_resource(All_user_id, '/api/all') 
 api.add_resource(User, '/api/user/<string:user_info>') 
   
