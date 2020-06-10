@@ -77,22 +77,22 @@ class User(Resource):
         found = self.find_user(user_info)
         if not found:
             return jsonify({'response':"user not found", 'user':user_info})
-        result = db.users.delete_one({'_id':ObjectId(found['_id'])})
+        db.users.delete_one({'_id':ObjectId(found['_id'])})
         
-        print('result======', {'_id':found['_id']})
-        print('result======', result.acknowledged, result.deleted_count)
         return jsonify({'response':'user deteled', 'user': user_info})
     
     def patch(self, user_id):
         return jsonify({'patch user':'derek', 'user_id':user_id})
     
     def find_user(self, user_info):
-        found = db.users.find_one({"_id":user_info})
+        found = False
+        if(ObjectId.is_valid(user_info)):
+            found = db.users.find_one({"_id":ObjectId(user_info)})
+            
         if not found:
             found = db.users.find_one({"username":user_info})
         
         if found:
-            print('message:=====', found)
             found['_id'] = str(found['_id'])
         return found
     
@@ -114,7 +114,6 @@ class Stocks(Resource):
             # https://cloud.iexapis.com/stable/tops?token=API_KEY&symbols=aapl
             base_url = f'https://cloud.iexapis.com/stable/tops?token={SECRET_KEY}&symbols={symbol}'
             response = requests.get(base_url)
-            print("=====", base_url,response.status_code)
             return response.json()
         except:
             return jsonify({"response":"Error"})
@@ -124,6 +123,7 @@ class Trades(Resource):
         found = self.find_trade(trade_id)
         if not found:
             return jsonify({"response":"Not Found", "status":404})
+        found["_id"] = str(found["_id"])
         return jsonify({"response":found})
     
     def post(self):
@@ -131,15 +131,41 @@ class Trades(Resource):
         if not data:
             return jsonify({"response":"ERROR. Empty payload"})
         else:
-            username = data.get('username')
-            user_id = data.get('user_id')
-            inserted = db.trades.insert_one(data)
-            
-            print("==============", user_id, username, inserted)
-            return jsonify({"response":"Successeful"})
+            found_user = self.validate_user(data)
+
+            if not found_user:
+                return jsonify({"response":"not found"}, 404)
+        
+        trade_data = {
+            "user_id":found_user["_id"],
+            "symbol":data.get('symbol'),
+            "price":data.get('price'),
+            "quantity":data.get('quantity'),
+            "timestamp":data.get('timestamp')
+        }
+        
+        if not self.validate_trade(data):
+            return jsonify({"response":"trade info not valid"},trade_data, 400)
+        
+        inserted = db.trades.insert_one(trade_data)
+        
+        return jsonify({"response":"Successeful", 'trade ID': str(inserted.inserted_id)}, 200)
 
     def find_trade(self, trade_id):
-        return db.trades.find_one({"_id":trade_id})
+        return db.trades.find_one({"_id":ObjectId(trade_id)})
+    
+    def validate_user(self, data):
+        username = data.get('username')
+        user_id = data.get('user_id')
+        if not user_id:
+            found = User.find_user(self, username)
+        else:
+            found = User.find_user(self, user_id)
+        return found
+    
+    def validate_trade(self, data):
+        return data.get('symbol') and data.get('price') and data.get('quantity') and data.get('timestamp')
+        
         
         
         
