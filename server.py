@@ -1,11 +1,12 @@
 # using flask_restful 
+import os
+import requests 
 from flask import Flask, jsonify, request 
 from flask_restful import Resource, Api 
 from flask_pymongo import PyMongo, ObjectId
 from flask_bcrypt import Bcrypt
 from dotenv import load_dotenv
-import os
-import requests 
+
 
 load_dotenv()
 
@@ -117,6 +118,23 @@ class Stocks(Resource):
             return response.json()
         except:
             return jsonify({"response":"Error"})
+
+class Trades_by_user(Resource):
+    def get(self, user_info):
+        found_user = User.find_user(self, user_info)
+        if not found_user:
+            return jsonify({"response":"user not found"}, 404)
+        trades = db.trades.find({'user_id':str(found_user['_id'])})
+        print("======",trades)
+        data = [trade for trade in trades]
+        
+        
+        array = []
+        for trade in data:
+            trade["_id"] = str(trade["_id"])
+            array.append(trade)
+        
+        return jsonify({"response":"trades found"}, array, 200)
         
 class Trades(Resource):
     def get(self, trade_id):
@@ -175,6 +193,8 @@ class Trades(Resource):
   
 # adding the defined resources along with their corresponding urls 
 api.add_resource(Hello, '/') 
+
+api.add_resource(Trades_by_user, '/api/trades/<string:user_info>') 
 api.add_resource(Stocks, '/api/stock/symbol/<string:symbol>')
 api.add_resource(Trades, '/api/trade/<string:trade_id>', '/api/trade')
 api.add_resource(All_user_id, '/api/all') 
