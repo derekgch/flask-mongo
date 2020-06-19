@@ -6,6 +6,8 @@ from dotenv import load_dotenv
 from database.db import initialized_db, init_bcrypt,database
 from flask_bcrypt import Bcrypt
 from resources.user import User
+from resources.stock import Stocks
+from resources.trade import Trades
 
 load_dotenv()
 
@@ -39,9 +41,10 @@ class Hello(Resource):
         return jsonify({'data': data}), 201
 
 api.add_resource(Hello, '/') 
-api.add_resource(User, '/api/user/<string:user_info>') 
+api.add_resource(User, '/api/user/', '/api/user/<string:user_info>' ) 
+api.add_resource(Stocks, '/api/stock/symbol/<string:symbol>')
+api.add_resource(Trades, '/api/trade', '/api/trade/<string:trade_id>')
 
 # driver function 
 if __name__ == '__main__': 
-  
     app.run(debug = True) 

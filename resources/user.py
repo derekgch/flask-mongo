@@ -12,7 +12,9 @@ class User(Resource):
         
         return jsonify({"response":found})
     
-    def post(self, user_info):
+    def post(self):
+      try:
+        
         data = request.get_json()
         
         if not data:
@@ -27,6 +29,8 @@ class User(Resource):
                 found = self.find_user(username)
                 
                 return jsonify({"response":self.trip_pw_hash(found)})
+      except Exception as e:
+        return jsonify({"response:":str(e)}, 400)
                 
     
     def delete(self, user_info):
