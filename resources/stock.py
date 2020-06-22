@@ -6,7 +6,7 @@ from flask_restful import Resource
 
 SECRET_KEY = os.getenv("API_KEY")
 
-class Stocks(Resource):
+class Stock(Resource):
     def get(self, symbol):
         try:
             # https://cloud.iexapis.com/stable/tops?token=API_KEY&symbols=aapl

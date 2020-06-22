@@ -6,8 +6,9 @@ from dotenv import load_dotenv
 from database.db import initialized_db, init_bcrypt,database
 from flask_bcrypt import Bcrypt
 from resources.user import User
-from resources.stock import Stocks
-from resources.trade import Trades
+from resources.stock import Stock
+from resources.trade import Trade
+from resources.user_trade import UserTrade
 
 load_dotenv()
 
@@ -20,30 +21,12 @@ api = Api(app)
 initialized_db(app)
 init_bcrypt(app)
 
-db = database.db
 
-class Hello(Resource): 
-  
-    # corresponds to the GET request. 
-    # this function is called whenever there 
-    # is a GET request for this resource 
-    def get(self): 
-        found = db.users.find_one({'username':'test60'})
-        print(found)
-        found['_id'] = '***'
-        found['password'] = "****"
-        return jsonify({'message': 'hello world'}, found) 
-  
-    # Corresponds to POST request 
-    def post(self): 
-          
-        data = request.get_json()     # status code 
-        return jsonify({'data': data}), 201
-
-api.add_resource(Hello, '/') 
 api.add_resource(User, '/api/user/', '/api/user/<string:user_info>' ) 
-api.add_resource(Stocks, '/api/stock/symbol/<string:symbol>')
-api.add_resource(Trades, '/api/trade', '/api/trade/<string:trade_id>')
+api.add_resource(Stock, '/api/stock/symbol/<string:symbol>')
+api.add_resource(Trade, '/api/trade', '/api/trade/<string:trade_id>')
+api.add_resource(UserTrade, '/api/user/trades/<string:user_info>') 
+
 
 # driver function 
 if __name__ == '__main__': 

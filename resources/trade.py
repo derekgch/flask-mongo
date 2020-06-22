@@ -8,7 +8,7 @@ from .user import User
 
 
 
-class Trades(Resource):
+class Trade(Resource):
     def get(self, trade_id):
         found = self.find_trade(trade_id)
         if not found:
@@ -36,6 +36,9 @@ class Trades(Resource):
 
     def find_trade(self, trade_id):
         return database.db.trades.find_one({"_id":ObjectId(trade_id)})
+      
+    def find_trade_by_user(self,user_id):
+        return database.db.trades.find({'user_id':user_id})
     
     def validate_user(self, data):
         username = data.get('username')
