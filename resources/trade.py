@@ -1,10 +1,14 @@
 
 import requests 
+import datetime
+
 from flask import Flask, jsonify, request 
 from flask_restful import Resource
 from flask_pymongo import ObjectId
+
 from database.db import database
 from .user import User
+from .stock import Stock
 
 
 
@@ -27,12 +31,18 @@ class Trade(Resource):
                 return jsonify({"response":"not found"}, 404)
         
         trade_data = self.trade_data(data, found_user)
+        trade_data["timestamp"] = datetime.datetime.now()
         if not self.validate_trade(data):
             return jsonify({"response":"trade info not valid"},trade_data, 400)
-        
+        current_price = self.get_current_stock_price(trade_data.get('symbol'))
+        if not current_price:
+          return jsonify({"response":"trade symbol not valid"},trade_data, 400)
+        trade_data["price"] = current_price
+        trade_data['price_timestamp'] = datetime.datetime.now()
         inserted = database.db.trades.insert_one(trade_data)
-        
-        return jsonify({"response":"Successeful", 'trade ID': str(inserted.inserted_id)}, 200)
+        traded_result = database.db.trades.find_one({'_id':inserted.inserted_id})
+        traded_result['_id'] = str(traded_result['_id'])
+        return jsonify({"response":"Successeful", 'trade result': traded_result}, 200)
 
     def find_trade(self, trade_id):
         return database.db.trades.find_one({"_id":ObjectId(trade_id)})
@@ -58,6 +68,14 @@ class Trade(Resource):
             "action":data.get('action'),
             "timestamp":data.get('timestamp')
         }
+    
+    def get_current_stock_price(self, symbol):
+      quote = Stock.get_price(self, symbol).json()
+      
+      if not quote:
+        return None
+      print("========", quote[0])
+      return quote[0]['lastSalePrice']
     
     def validate_trade(self, data):
         return data.get('symbol') and data.get('price') and data.get('quantity') and data.get('timestamp') and data.get('action')
