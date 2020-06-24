@@ -24,7 +24,7 @@ init_bcrypt(app)
 
 api.add_resource(User, '/api/user/', '/api/user/<string:user_info>' ) 
 api.add_resource(Stock, '/api/stock/symbol/<string:symbol>')
-api.add_resource(Trade, '/api/trade', '/api/trade/<string:trade_id>')
+api.add_resource(Trade, '/api/trade/', '/api/trade/<string:trade_id>')
 api.add_resource(UserTrade, '/api/user/trades/<string:user_info>') 
 
 
