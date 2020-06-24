@@ -184,12 +184,6 @@ class Trades(Resource):
     def validate_trade(self, data):
         return data.get('symbol') and data.get('price') and data.get('quantity') and data.get('timestamp')
         
-        
-        
-        
-            
-    
-    
   
 # adding the defined resources along with their corresponding urls 
 api.add_resource(Hello, '/') 
