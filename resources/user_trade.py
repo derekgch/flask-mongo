@@ -8,7 +8,6 @@ from .trade import Trade
 
 class UserTrade(Resource):    
   def get(self, user_info):
-    print("=======", user_info)
     found_user = User.find_user(self, user_info)
     if not found_user:
       return jsonify({'response':'user not foud'}, 404)

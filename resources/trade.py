@@ -78,7 +78,6 @@ class Trade(Resource):
       
       if not quote:
         return None
-      print("========", quote[0])
       return quote[0]['lastSalePrice']
     
     def validate_trade(self, data):
